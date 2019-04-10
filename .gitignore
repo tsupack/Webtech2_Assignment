@@ -1,6 +1,9 @@
 ## Maven ##
 target/
 
+## NPM ##
+node_modules/
+
 ## IntelliJ IDEA ##
 .idea
 **/*.pyc
