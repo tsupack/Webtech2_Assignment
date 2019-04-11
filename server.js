@@ -6,8 +6,8 @@ const port = 8088;
 
 app.use(bodyParser.json());
 
-//const shutterController = require('./shutterController')
-//app.use('/',shutterRequestController)
+const controller = require('./controller')
+app.use('/',controller)
 
 app.listen(port, ()=>{
     console.log(`Server is listening on ${port}`)

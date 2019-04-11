@@ -2,9 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Shutter Manufacturing Company</title>
+    <style>
+        #registerForm{
+            display: none;
+        }
+    </style>
+    <script>
+        function Show(buttonID) {
+            var buttonText = document.getElementById(buttonID);
+            var paragraph = document.getElementById("registerForm");
+            if (buttonText.firstChild.data === "Register")
+            {
+                buttonText.firstChild.data = "Hide registration form";
+                paragraph.style.display = "block";
+                buttonText.title = "Click to hide registration form!";
+            }
+            else
+            {
+                buttonText.firstChild.data = "Register";
+                paragraph.style.display = "none";
+                buttonText.title = "Register";
+            }
+        }
+    </script>
 </head>
 <body>
+<div id="loginForm">
+    <form action="/login" method="post" name="LoginForm">
+        <input type="text" placeholder="Username" name="username" required = "required"/>
+        <input type="text" placeholder="Password" name="password" required = "required"/>
+        <input type="submit" value="Login"/>
+    </form>
+</div>
+<button id="show" onclick="Show(this.id)" title="Register">Register</button>
+<div id="registerForm">
 
+</div>
 </body>
 </html>
