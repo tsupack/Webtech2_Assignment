@@ -1,0 +1,65 @@
+[
+  {
+    "order" : {
+      "orderID" : 1,
+      "customer" : {
+        "name" : "Vásárló István",
+        "email" : "vasarlo@istvan.com",
+        "window" : {
+          "height" : 150,
+          "width" : 150
+        }
+      },
+      "shutter" : {
+        "parts" : "Sheet metal, screws, rubber seals, polymer rope, paint.",
+        "assembled" : false,
+        "installed" : false,
+        "worker" : "",
+        "price" : 0,
+        "manager" : ""
+      }
+    }
+  },
+  {
+    "order" : {
+      "orderID" : 2,
+      "customer" : {
+        "name" : "Vásárló János",
+        "email" : "vasarlo@janos.com",
+        "window" : {
+          "height" : 150,
+          "width" : 100
+        }
+      },
+      "shutter" : {
+        "parts" : "Sheet metal, fabric, screws, rubber seals, polymer rope, paint.",
+        "assembled" : false,
+        "installed" : false,
+        "worker" : "",
+        "price" : 0,
+        "manager" : ""
+      }
+    }
+  },
+  {
+    "order" : {
+      "orderID" : 3,
+      "customer" : {
+        "name" : "Vásárló Géza",
+        "email" : "vasarlo@geza.com",
+        "window" : {
+          "height" : 100,
+          "width" : 150
+        }
+      },
+      "shutter" : {
+        "parts" : "Plastic, screws, rubber seals, polymer rope, paint.",
+        "assembled" : false,
+        "installed" : false,
+        "worker" : "",
+        "price" : 0,
+        "manager" : ""
+      }
+    }
+  }
+]

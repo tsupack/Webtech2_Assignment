@@ -1,0 +1,145 @@
+*Start the MongoDB server*
+*Command structure: docker run -p <hostPort>:<guestPort> -v <hostDir>:<guestDir> mongo*
+sudo docker run -p 27017:27017 -v `pwd`/data:/data/db mongo
+
+*Open new terminal*
+mongo localhost:27017
+
+*List Databases*
+show dbs
+
+*Select DB*
+use shutterDB
+
+*List Collections of current DB*
+show collections
+
+*Initializing starter data*
+db.orders.insertMany([
+  {
+    "order" : {
+      "orderID" : 1,
+      "customer" : {
+        "name" : "Vásárló István",
+        "email" : "vasarlo@istvan.com",
+        "window" : {
+          "height" : 150,
+          "width" : 150
+        }
+      },
+      "shutter" : {
+        "parts" : "Sheet metal, screws, rubber seals, polymer rope, paint.",
+        "assembled" : false,
+        "installed" : false,
+        "worker" : "",
+        "price" : 0,
+        "manager" : ""
+      }
+    }
+  },
+  {
+    "order" : {
+      "orderID" : 2,
+      "customer" : {
+        "name" : "Vásárló János",
+        "email" : "vasarlo@janos.com",
+        "window" : {
+          "height" : 150,
+          "width" : 100
+        }
+      },
+      "shutter" : {
+        "parts" : "Sheet metal, fabric, screws, rubber seals, polymer rope, paint.",
+        "assembled" : false,
+        "installed" : false,
+        "worker" : "",
+        "price" : 0,
+        "manager" : ""
+      }
+    }
+  },
+  {
+    "order" : {
+      "orderID" : 3,
+      "customer" : {
+        "name" : "Vásárló Géza",
+        "email" : "vasarlo@geza.com",
+        "window" : {
+          "height" : 100,
+          "width" : 150
+        }
+      },
+      "shutter" : {
+        "parts" : "Plastic, screws, rubber seals, polymer rope, paint.",
+        "assembled" : false,
+        "installed" : false,
+        "worker" : "",
+        "price" : 0,
+        "manager" : ""
+      }
+    }
+  }
+])
+
+db.users.insertMany([
+    {
+        "user" : {
+          "userID" : 1,
+          "name" : "Vásárló István",
+          "email" : "vasarlo@istvan.com",
+          "username" : "pistike",
+          "password" : "pistike",
+          "rank" : "customer"
+        }
+      },
+      {
+        "user" : {
+          "userID" : 2,
+          "name" : "Vásárló János",
+          "email" : "vasarlo@janos.com",
+          "username" : "janoka",
+          "password" : "janoka",
+          "rank" : "customer"
+        }
+      },
+      {
+        "user" : {
+          "userID" : 3,
+          "name" : "Vásárló Géza",
+          "email" : "vasarlo@geza.com",
+          "username" : "gezuka",
+          "password" : "gezuka",
+          "rank" : "customer"
+        }
+      },
+      {
+        "user" : {
+          "userID" : 4,
+          "name" : "Munkás Ferenc",
+          "email" : "munkas@ferenc.com",
+          "username" : "ferike",
+          "password" : "ferike",
+          "rank" : "worker"
+        }
+      },
+      {
+        "user" : {
+          "userID" : 5,
+          "name" : "Menedzser Mihály",
+          "email" : "menedzser@mihaly.com",
+          "username" : "misike",
+          "password" : "misike",
+          "rank" : "manager"
+        }
+      }
+])
+
+*Select and update variants that I'm going to use*
+db.orders.find()
+
+db.orders.find({"order.shutter.assembled":{$ne:true}})
+
+db.requests.update(
+ 	{"order.orderID" : 1)},
+ 	{$set:{"order.shutter.assembled":true}}
+)
