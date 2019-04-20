@@ -4,6 +4,9 @@ target/
 ## NPM ##
 node_modules/
 
+## MongoDB ##
+data/
+
 ## IntelliJ IDEA ##
 .idea
 **/*.pyc

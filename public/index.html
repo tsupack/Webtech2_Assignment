@@ -37,7 +37,13 @@
 </div>
 <button id="show" onclick="Show(this.id)" title="Register">Register</button>
 <div id="registerForm">
-
+    <form action="/register" method="post" name="RegisterForm">
+        <input type="text" placeholder="Name" name="name" required = "required"/>
+        <input type="text" placeholder="E-mail address" name="email" required = "required"/>
+        <input type="text" placeholder="Username" name="username" required = "required"/>
+        <input type="text" placeholder="Password" name="password" required = "required"/>
+        <input type="submit" value="Register"/>
+    </form>
 </div>
 </body>
 </html>

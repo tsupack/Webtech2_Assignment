@@ -1,65 +1,41 @@
 [
   {
-    "order" : {
       "orderID" : 1,
-      "customer" : {
-        "name" : "Vásárló István",
-        "email" : "vasarlo@istvan.com",
-        "window" : {
-          "height" : 150,
-          "width" : 150
-        }
-      },
-      "shutter" : {
-        "parts" : "Sheet metal, screws, rubber seals, polymer rope, paint.",
-        "assembled" : false,
-        "installed" : false,
-        "worker" : "",
-        "price" : 0,
-        "manager" : ""
-      }
-    }
+      "customer_name" : "Vásárló István",
+      "customer_email" : "vasarlo@istvan.com",
+      "window_height" : 150,
+      "window_width" : 150,
+      "shutter_parts" : "Sheet metal, screws, rubber seals, polymer rope, paint.",
+      "shutter_assembled" : false,
+      "shutter_installed" : false,
+      "worker" : "",
+      "price" : 0,
+      "manager" : ""
   },
   {
-    "order" : {
       "orderID" : 2,
-      "customer" : {
-        "name" : "Vásárló János",
-        "email" : "vasarlo@janos.com",
-        "window" : {
-          "height" : 150,
-          "width" : 100
-        }
-      },
-      "shutter" : {
-        "parts" : "Sheet metal, fabric, screws, rubber seals, polymer rope, paint.",
-        "assembled" : false,
-        "installed" : false,
-        "worker" : "",
-        "price" : 0,
-        "manager" : ""
-      }
-    }
+      "customer_name" : "Vásárló János",
+      "customer_email" : "vasarlo@janos.com",
+      "window_height" : 150,
+      "window_width" : 100,
+      "shutter_parts" : "Sheet metal, fabric, screws, rubber seals, polymer rope, paint.",
+      "shutter_assembled" : false,
+      "shutter_installed" : false,
+      "worker" : "",
+      "price" : 0,
+      "manager" : ""
   },
   {
-    "order" : {
       "orderID" : 3,
-      "customer" : {
-        "name" : "Vásárló Géza",
-        "email" : "vasarlo@geza.com",
-        "window" : {
-          "height" : 100,
-          "width" : 150
-        }
-      },
-      "shutter" : {
-        "parts" : "Plastic, screws, rubber seals, polymer rope, paint.",
-        "assembled" : false,
-        "installed" : false,
-        "worker" : "",
-        "price" : 0,
-        "manager" : ""
-      }
-    }
+      "customer_name" : "Vásárló Géza",
+      "customer_email" : "vasarlo@geza.com",
+      "window_height" : 100,
+      "window_width" : 150,
+      "shutter_parts" : "Plastic, screws, rubber seals, polymer rope, paint.",
+      "shutter_assembled" : false,
+      "shutter_installed" : false,
+      "worker" : "",
+      "price" : 0,
+      "manager" : ""
   }
 ]

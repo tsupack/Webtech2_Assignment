@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo Hello Test!",
-    "start": "node server.js"
+    "start": "node app/server.js"
   },
   "author": "Alex Nussbaumer",
   "license": "ISC",
