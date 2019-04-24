@@ -6,4 +6,5 @@ The task is to create a complete webpage (database, back-end, front-end) for a s
 <li>NodeJS</li>
 <li>HTML</li>
 <li>MongoDB</li>
+<li>Bootstrap</li>
 </ul>
