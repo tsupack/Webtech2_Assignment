@@ -1,8 +1,8 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const appRoot = require('app-root-path');
-const logger = require(`${appRoot}/config/logger`);
-const mongoConfig = require(`${appRoot}/config/mongo`);;
+const logger = require(`${appRoot}/app/config/logger`);
+const mongoConfig = require(`${appRoot}/app/config/mongo`);
 
 /*
 Collection structure:

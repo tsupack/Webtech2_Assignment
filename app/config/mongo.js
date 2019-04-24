@@ -3,7 +3,8 @@ const mongoConfig = {
         url: 'mongodb://localhost:27017',
         databaseName: 'shutterDB',
         userCollection: 'users',
-        orderCollection: 'orders'
+        orderCollection: 'orders',
+        shutterCollection: 'shutters'
     },
     config: {
         useNewUrlParser: true

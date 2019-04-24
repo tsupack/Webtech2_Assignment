@@ -15,18 +15,20 @@ use shutterDB
 show collections
 
 *Initializing starter data*
-db.orders.insertMany([
+db.orders.insertMany(
+[
   {
       "orderID" : 1,
       "customer_name" : "Vásárló István",
       "customer_email" : "vasarlo@istvan.com",
       "window_height" : 150,
       "window_width" : 150,
-      "shutter_parts" : "Sheet metal, screws, rubber seals, polymer rope, paint.",
+      "shutter_model" : 1,
       "shutter_assembled" : false,
       "shutter_installed" : false,
       "worker" : "",
       "price" : 0,
+      "paid" : false,
       "manager" : ""
   },
   {
@@ -35,11 +37,12 @@ db.orders.insertMany([
       "customer_email" : "vasarlo@janos.com",
       "window_height" : 150,
       "window_width" : 100,
-      "shutter_parts" : "Sheet metal, fabric, screws, rubber seals, polymer rope, paint.",
+      "shutter_model" : 2,
       "shutter_assembled" : false,
       "shutter_installed" : false,
       "worker" : "",
       "price" : 0,
+      "paid" : false,
       "manager" : ""
   },
   {
@@ -48,16 +51,18 @@ db.orders.insertMany([
       "customer_email" : "vasarlo@geza.com",
       "window_height" : 100,
       "window_width" : 150,
-      "shutter_parts" : "Plastic, screws, rubber seals, polymer rope, paint.",
+      "shutter_model" : 3,
       "shutter_assembled" : false,
       "shutter_installed" : false,
       "worker" : "",
       "price" : 0,
+      "paid" : false,
       "manager" : ""
   }
 ])
 
-db.users.insertMany([
+db.users.insertMany(
+[
   {
       "userID" : 1,
       "name" : "Vásárló István",
@@ -98,6 +103,25 @@ db.users.insertMany([
       "password" : "misike",
       "rank" : "manager"
   }
+])
+
+db.shutters.insertMany(
+[
+    {
+        "modelID" : 1,
+        "model_name" : "Interior wooden louvered shutter",
+        "parts" : "Raw wood planks, paint, hinges, screws, nails, tilt control mechanism."   
+    },
+    {
+        "modelID" : 2,
+        "model_name" : "Exterior PVC louvered shutter",
+        "parts" : "PVC element kit, rubber sealing, hinges, screws, tilt control mechanism."   
+    },
+    {
+        "modelID" : 3,
+        "model_name" : "Interior Shaker-Stlye shutter",
+        "parts" : "Raw wood board, raw wood planks, paint, hinges, screws, nails, tilt control mechanism."   
+    }
 ])
 
 *Select and update variants that I'm going to use*

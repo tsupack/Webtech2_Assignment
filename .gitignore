@@ -7,6 +7,9 @@ node_modules/
 ## MongoDB ##
 data/
 
+## Log ##
+logs/
+
 ## IntelliJ IDEA ##
 .idea
 **/*.pyc

@@ -1,5 +1,5 @@
 const appRoot = require('app-root-path');
-const logger = require(`${appRoot}/config/logger`);
+const logger = require(`${appRoot}/app/config/logger`);
 
 function UserService(userDao){
     if(userDao != undefined || userDao != null){
@@ -23,24 +23,28 @@ UserService.prototype.findUser = function (username, callback) {
     });
 };
 
-//Gives back the rank of a user at a successful login, to get the appropriate functions of the page enabled. VERY BASIC, DON'T EVER USE SOMETHING LIKE THIS!
+//Gives back the rank and the name of a user at a successful login, to get the appropriate functions of the page enabled. VERY BASIC, DON'T EVER USE SOMETHING LIKE THIS!
 UserService.prototype.loginUser = function  (username, password, callback) {
     logger.info(`User login has started!`);
     this.findUser(username, (user) => {
-        let userRank = null;
+        let userInfo = [];
         if(user === undefined || user[0] == null) {
             logger.info(`"${username}" user is not registered yet!`);
-            callback(userRank);
+            callback(userInfo);
         }
         else {
             if(password === user[0].password){
                 logger.info(`"${username}" user successfully logged in!`);
-                userRank = user[0].rank;
+                userInfo.push({
+                    name : user[0].name,
+                    rank : user[0].rank,
+                    email : user[0].email
+                });
             }
             else {
                 logger.info(`Password for "${username}" user is incorrect!`);
             }
-            callback(userRank);
+            callback(userInfo);
         }
     })
 };

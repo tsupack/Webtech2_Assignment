@@ -15,5 +15,5 @@ app.use(express.static(`${appRoot}/public`));
 app.use('/', express.static('public', {index: 'index.html'}));
 
 app.listen(port, () => {
-    console.log(`Server is listening on ${port}`)
+    console.log(`Server is listening on ${port}.`)
 });

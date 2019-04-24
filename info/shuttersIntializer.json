@@ -1,0 +1,17 @@
+[
+    {
+        "modelID" : 1,
+        "model_name" : "Interior wooden louvered shutter",
+        "parts" : "Raw wood planks, paint, hinges, screws, nails, tilt control mechanism."   
+    },
+    {
+        "modelID" : 2,
+        "model_name" : "Exterior PVC louvered shutter",
+        "parts" : "PVC element kit, rubber sealing, hinges, screws, tilt control mechanism."   
+    },
+    {
+        "modelID" : 3,
+        "model_name" : "Interior Shaker-Stlye shutter",
+        "parts" : "Raw wood board, raw wood planks, paint, hinges, screws, nails, tilt control mechanism."   
+    }
+]
