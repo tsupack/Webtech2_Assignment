@@ -49,17 +49,13 @@ UserService.prototype.loginUser = function  (username, password, callback) {
     })
 };
 
-//Calls to get the highest ID currently in the collection at new item insertion.
-UserService.prototype.getMaxUserId = function (callback) {
+//Inserts a new item with the given data to the collection.
+UserService.prototype.registerUser = function (user, callback) {
     logger.info(`User registration has started!`);
     this.userDao.getMaxUserId((maxID) => {
         logger.info(`The found maximum ID was: ${maxID}`);
-        callback(maxID);
+        user.userID = (maxID + 1);
     });
-}
-
-//Inserts a new item with the given data to the collection.
-UserService.prototype.registerUser = function (user, callback) {
     this.userDao.registerUser(user, (response) => {
         logger.info(`"${JSON.stringify(user)}" user is successfully inserted into the database!`);
         callback(response);
@@ -69,14 +65,6 @@ UserService.prototype.registerUser = function (user, callback) {
 //For debug purposes only.
 UserService.prototype.listUsers = function(callback){
     this.userDao.readUsers((users) => {
-        /*let ID1 = 6;
-        let ID2 = 7;
-        this.userDao.deleteUser(ID1, (result) => {
-            logger.info(`User with ${ID1} ID was deleted! ${JSON.stringify(result)}`);
-        });
-        this.userDao.deleteUser(ID2, (result) => {
-            logger.info(`User with ${ID2} ID was deleted! ${JSON.stringify(result)}`);
-        });*/
         callback(users);
     });
 };

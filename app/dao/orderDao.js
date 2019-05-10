@@ -2,7 +2,8 @@ const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const appRoot = require('app-root-path');
 const logger = require(`${appRoot}/app/config/logger`);
-const mongoConfig = require(`${appRoot}/app/config/mongo`);;
+const mongoConfig = require(`${appRoot}/app/config/mongo`);
+;
 
 /*
 Collection structure:
@@ -42,16 +43,16 @@ function find(parameters, projection, callback) {
 }
 
 //Inserts one new item into the collection.
-function createOrder(order, callback){
+function createOrder(order, callback) {
     var client = new MongoClient(mongoConfig.database.url, mongoConfig.config);
-    client.connect((error)=>{
+    client.connect((error) => {
         assert.strictEqual(null, error);
         logger.info("Connected successfully to database (for order creation)!");
 
         const db = client.db(mongoConfig.database.databaseName);
-        const collection= db.collection(mongoConfig.database.orderCollection);
+        const collection = db.collection(mongoConfig.database.orderCollection);
 
-        collection.insertOne(order,function(error, data) {
+        collection.insertOne(order, function (error, data) {
             assert.strictEqual(error, null);
             callback(data);
         });
@@ -101,18 +102,18 @@ function findOrderByName(customerName, callback) {
         {
             projection: {
                 _id: 0,
-                orderID : 1,
-                customer_name : 1,
-                customer_email : 1,
-                window_height : 1,
-                window_width : 1,
-                shutter_model : 1,
-                shutter_assembled : 1,
-                shutter_installed : 1,
-                worker : 1,
-                price : 1,
-                paid : 1,
-                manager : 1
+                orderID: 1,
+                customer_name: 1,
+                customer_email: 1,
+                window_height: 1,
+                window_width: 1,
+                shutter_model: 1,
+                shutter_assembled: 1,
+                shutter_installed: 1,
+                worker: 1,
+                price: 1,
+                paid: 1,
+                manager: 1
             }
         }, (result) => {
             callback(result);
@@ -125,18 +126,18 @@ function findOrderById(orderID, callback) {
         {
             projection: {
                 _id: 0,
-                orderID : 1,
-                customer_name : 1,
-                customer_email : 1,
-                window_height : 1,
-                window_width : 1,
-                shutter_model : 1,
-                shutter_assembled : 1,
-                shutter_installed : 1,
-                worker : 1,
-                price : 1,
-                paid : 1,
-                manager : 1
+                orderID: 1,
+                customer_name: 1,
+                customer_email: 1,
+                window_height: 1,
+                window_width: 1,
+                shutter_model: 1,
+                shutter_assembled: 1,
+                shutter_installed: 1,
+                worker: 1,
+                price: 1,
+                paid: 1,
+                manager: 1
             }
         }, (result) => {
             callback(result);
@@ -144,17 +145,17 @@ function findOrderById(orderID, callback) {
 }
 
 //Autoincrement function for IDs at data insertion.
-function getMaxOrderId(callback){
+function getMaxOrderId(callback) {
     find({},
         {
             projection: {
                 _id: 0,
-                orderID : 1,
+                orderID: 1,
             }
         }, (result) => {
             let maxID = null;
             for (let i = 0; i < result.length; i++) {
-                if(maxID < result[i].orderID){
+                if (maxID < result[i].orderID) {
                     maxID = result[i].orderID;
                 }
             }
@@ -163,37 +164,75 @@ function getMaxOrderId(callback){
 }
 
 //Gives back the complete list of orders.
-function readAllOrders(callback){
+function readAllOrders(callback) {
     find({},
         {
             projection: {
                 _id: 0,
-                orderID : 1,
-                customer_name : 1,
-                customer_email : 1,
-                window_height : 1,
-                window_width : 1,
-                shutter_model : 1,
-                shutter_assembled : 1,
-                shutter_installed : 1,
-                worker : 1,
-                price : 1,
-                paid : 1,
-                manager : 1
+                orderID: 1,
+                customer_name: 1,
+                customer_email: 1,
+                window_height: 1,
+                window_width: 1,
+                shutter_model: 1,
+                shutter_assembled: 1,
+                shutter_installed: 1,
+                worker: 1,
+                price: 1,
+                paid: 1,
+                manager: 1
             }
         }, (result) => {
+            callback(result);
+        });
+}
+
+//Updates the paid property of an order.
+function updatePaidProperty(orderID, callback) {
+    let updateSet = {$set: {paid: true}};
+    updateOrder(orderID, updateSet, (result) => {
+        callback(result);
+    });
+}
+
+//Updates the assembled property of an order and saves the worker name.
+function updateAssembledProperty(orderID, workerName, callback) {
+    let updateSet = {
+        $set: {
+            shutter_assembled: true,
+            worker: workerName
+        }
+    };
+    updateOrder(orderID, updateSet, (result) => {
+        callback(result);
+    });
+}
+
+//Updates the installed property of an order and saves the manager name.
+function updateInstalledProperty(orderID, managerName, callback) {
+    let updateSet = {
+        $set: {
+            shutter_installed: true,
+            manager: managerName
+        }
+    };
+    updateOrder(orderID, updateSet, (result) => {
         callback(result);
     });
 }
 
 module.exports = {
-    "createOrder" : createOrder,
-    "deleteOrder" : deleteOrder,
-    "updateOrder" : updateOrder,
+    "createOrder": createOrder,
+    "deleteOrder": deleteOrder,
+    "updateOrder": updateOrder,
 
-    "findOrderByName" : findOrderByName,
-    "findOrderById" : findOrderById,
-    "getMaxOrderId" : getMaxOrderId,
+    "findOrderByName": findOrderByName,
+    "findOrderById": findOrderById,
+    "getMaxOrderId": getMaxOrderId,
 
-    "readAllOrders" : readAllOrders
+    "updatePaidProperty": updatePaidProperty,
+    "updateAssembledProperty": updateAssembledProperty,
+    "updateInstalledProperty": updateInstalledProperty,
+
+    "readAllOrders": readAllOrders
 };
