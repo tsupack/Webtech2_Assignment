@@ -2,16 +2,22 @@
     {
         "modelID" : 1,
         "model_name" : "Interior wooden louvered shutter",
-        "parts" : "Raw wood planks, paint, hinges, screws, nails, tilt control mechanism."   
+        "parts" : "Raw wood planks, paint, hinges, screws, nails, tilt control mechanism.",
+        "model_base_price" : 12000,
+        "material_modifier" : 6000   
     },
     {
         "modelID" : 2,
         "model_name" : "Exterior PVC louvered shutter",
-        "parts" : "PVC element kit, rubber sealing, hinges, screws, tilt control mechanism."   
+        "parts" : "PVC element kit, rubber sealing kit, hinges, screws, tilt control mechanism.",
+        "model_base_price" : 10000,
+        "material_modifier" : 5000   
     },
     {
         "modelID" : 3,
         "model_name" : "Interior Shaker-Stlye shutter",
-        "parts" : "Raw wood board, raw wood planks, paint, hinges, screws, nails, tilt control mechanism."   
+        "parts" : "Sheet metal, paint, hinges, screws, tilt control mechanism.",
+        "model_base_price" : 14000,
+        "material_modifier" : 7000   
     }
 ]

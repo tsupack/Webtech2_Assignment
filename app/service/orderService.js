@@ -23,6 +23,82 @@ OrderService.prototype.createOrder = function (order, callback) {
     });
 };
 
+
+//Updates an orders' paid property, if a customer finishes payment.
+//This action requires the user to be on a customer rank to commit.
+OrderService.prototype.updatePaidProperty = function(orderID, callback){
+    logger.info(`Updating paid property of ${orderID} order...`);
+    this.orderDao.findOrderById(orderID, (result) => {
+        if(result[0].paid === null || result[0].paid === undefined){
+            logger.info(`Internal error! Can't read property "paid" for payment update!`);
+            callback(false);
+        } else {
+            this.orderDao.updatePaidProperty(orderID, (result) => {
+                logger.info(`${JSON.stringify(result)}. ${orderID} orders' paid property is updated successfully!`);
+                callback(true);
+            });
+        }
+    });
+};
+
+//Updates an orders' assembled property and assigns the worker, if the worker finished working on it.
+//If the order is not paid yet, then it will return null.
+//This action requires the user to be on a worker rank to commit.
+OrderService.prototype.updateAssembledProperty = function(orderID, workerName, callback){
+    logger.info(`Updating assembled property of ${orderID} order...`);
+    this.orderDao.findOrderById(orderID, (result) => {
+        if(result[0].paid === null || result[0].paid === undefined){
+            logger.info(`Internal error! Can't read property "paid" for assembly update!`);
+            callback(false);
+        } else if(result[0].paid === false) {
+            logger.info(`${orderID} order is not paid yet, so it can't be assembled!`);
+            callback(false);
+        } else if(result[0].paid === true) {
+            this.orderDao.updateAssembledProperty(orderID, workerName, (order) => {
+                logger.info(`${JSON.stringify(order)}. ${orderID} orders' assembled property is updated successfully!`);
+                callback(true);
+            });
+        }
+    });
+};
+
+//Updates an orders' installed property and assigns the manager, if the manager finished working on it.
+//If the order is not assembled (or paid) yet, then it will return null.
+//This action requires the user to be on a manager rank to commit.
+OrderService.prototype.updateInstalledProperty = function(orderID, managerName, callback){
+    logger.info(`Updating installed property of ${orderID} order...`);
+    this.orderDao.findOrderById(orderID, (result) => {
+        if(result[0].shutter_assembled === null || result[0].shutter_assembled === undefined){
+            logger.info(`Internal error! Can't read property "assembled" for installed update!`);
+            callback(false);
+        } else if(result[0].shutter_assembled === false) {
+            logger.info(`${orderID} order is not paid or not assembled yet, so it can't be installed!`);
+            callback(false);
+        } else if(result[0].shutter_assembled === true) {
+            this.orderDao.updateInstalledProperty(orderID, managerName, (order) => {
+                logger.info(`${JSON.stringify(order)}. ${orderID} orders' installed property is updated successfully!`);
+                callback(true);
+            });
+        }
+    });
+};
+
+//Deletes an order by ID.
+OrderService.prototype.deleteOrder = function(orderID, callback){
+    logger.info(`Deleting ${orderID} order...`);
+    this.orderDao.findOrderById(orderID, (result) => {
+        if(result[0] === null || result[0] === undefined){
+            logger.info(`Internal error! Can't find ${orderID} order!`);
+            callback(false);
+        } else {
+            this.orderDao.deleteOrder(orderID, (result) => {
+                logger.info(`${JSON.stringify(result)}. ${orderID} order is deleted successfully!`);
+                callback(true);
+            });
+        }
+    });
+};
+
 //Gives back all the orders in the collection. Mostly for managerial purproses.
 OrderService.prototype.readAllOrders = function(callback){
     this.orderDao.readAllOrders((orders) => {
@@ -38,169 +114,60 @@ OrderService.prototype.readUserOrders = function (userName, callback) {
     });
 };
 
-//Gives back all the assembled orders.
-OrderService.prototype.readAssembledOrders = function(callback){
-    this.orderDao.readAllOrders((result) => {
-        let finalResult = [];
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_assembled === true){
-                finalResult.push(result[i]);
-            }
-        }
-        logger.info(`${JSON.stringify(finalResult)} orders are assembled already.`);
-        callback(finalResult);
-    });
-};
-
-//Gives back all the not assembled orders.
-OrderService.prototype.readNotAssembledOrders = function(callback){
-    this.orderDao.readAllOrders((result) => {
-        let finalResult = [];
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_assembled === false){
-                finalResult.push(result[i]);
-            }
-        }
-        logger.info(`${JSON.stringify(finalResult)} orders are not assembled yet.`);
-        callback(finalResult);
-    });
-};
-
-//Gives back all the installed orders.
-OrderService.prototype.readInstalledOrders = function(callback){
-    this.orderDao.readAllOrders((result) => {
-        let finalResult = [];
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_installed === true){
-                finalResult.push(result[i]);
-            }
-        }
-        logger.info(`${JSON.stringify(finalResult)} orders are already installed.`);
-        callback(finalResult);
-    });
-};
-
-//Gives back all the not installed orders.
-OrderService.prototype.readNotInstalledOrders = function(callback){
-    this.orderDao.readAllOrders((result) => {
-        let finalResult = [];
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_installed === false){
-                finalResult.push(result[i]);
-            }
-        }
-        logger.info(`${JSON.stringify(finalResult)} orders are not installed yet.`);
-        callback(finalResult);
-    });
-};
-
 //Gives back all the paid orders.
 OrderService.prototype.readPaidOrders = function(callback){
-    this.orderDao.readAllOrders((result) => {
-        let finalResult = [];
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].paid === true){
-                finalResult.push(result[i]);
-            }
-        }
-        logger.info(`${JSON.stringify(finalResult)} orders are already paid.`);
-        callback(finalResult);
+    this.orderDao.readPaidOrders((result) => {
+        callback(result);
     });
 };
 
 //Gives back all the unpaid orders.
 OrderService.prototype.readUnpaidOrders = function(callback){
-    this.orderDao.readAllOrders((result) => {
-        let finalResult = [];
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].paid === false){
-                finalResult.push(result[i]);
-            }
-        }
-        logger.info(`${JSON.stringify(finalResult)} orders are not paid yet.`);
-        callback(finalResult);
+    this.orderDao.readUnpaidOrders((result) => {
+        callback(result);
     });
 };
 
-//Updates an orders' paid property, if a customer finishes payment.
-//This action requires the user to be on a customer rank to commit.
-OrderService.prototype.updatePaidProperty = function(orderID, rank, callback){
-    logger.info(`Updating paid property of ${orderID} order...`);
-    if(rank != "customer" || rank === null || rank === undefined){
-        logger.info(`Unauthorised payment action...`);
-        callback(false);
-    } else {
-        this.orderDao.updatePaidProperty(orderID, (result) => {
-            logger.info(`${JSON.stringify(result)}. ${orderID} orders' paid property is updated successfully!`);
-            callback(true);
-        });
-    }
+//Gives back all the assembled orders.
+OrderService.prototype.readAssembledOrders = function(callback){
+    this.orderDao.readAssembledOrders((result) => {
+        callback(result);
+    });
 };
 
-//Updates an orders' assembled property and assigns the worker, if the worker finished working on it.
-//If the order is not paid yet, then it will return null.
-//This action requires the user to be on a worker rank to commit.
-OrderService.prototype.updateAssembledProperty = function(orderID, workerName, rank, callback){
-    logger.info(`Updating assembled property of ${orderID} order...`);
-    if(rank != "worker" || rank === null || rank === undefined){
-        logger.info(`Unauthorised assembling action...`);
-        callback(false);
-    } else {
-        this.orderDao.findOrderById(orderID, (result) => {
-            if(result[0].paid === false) {
-                logger.info(`${orderID} order is not paid yet, so it can't be assembled!`);
-                callback(false);
-            }
-            else if(result[0].paid === true) {
-                this.orderDao.updateAssembledProperty(orderID, workerName, (order) => {
-                    logger.info(`${JSON.stringify(order)}. ${orderID} orders' assembled property is updated successfully!`);
-                    callback(true);
-                });
-            }
-            else if(result[0].paid === null || result[0].paid === undefined){
-                logger.info(`Internal error! Can't read property "paid" for assembly update!`);
-                callback(false);
-            }
-        });
-    }
+//Gives back all the not assembled orders.
+OrderService.prototype.readNotAssembledOrders = function(callback){
+    this.orderDao.readNotAssembledOrders((result) => {
+        callback(result);
+    });
 };
 
-//Updates an orders' installed property and assigns the manager, if the manager finished working on it.
-//If the order is not assembled (or paid) yet, then it will return null.
+//Gives back all the installed orders.
+OrderService.prototype.readInstalledOrders = function(callback){
+    this.orderDao.readInstalledOrders((result) => {
+        callback(result);
+    });
+};
+
+//Gives back all the not installed orders.
+OrderService.prototype.readNotInstalledOrders = function(callback){
+    this.orderDao.readNotInstalledOrders((result) => {
+        callback(result);
+    });
+};
+
+//Reads statistic information from the database.
 //This action requires the user to be on a manager rank to commit.
-OrderService.prototype.updateInstalledProperty = function(orderID, managerName, rank, callback){
-    logger.info(`Updating installed property of ${orderID} order...`);
-    if(rank != "manager" || rank === null || rank === undefined){
-        logger.info(`Unauthorised installment action...`);
-        callback(false);
-    } else {
-        this.orderDao.findOrderById(orderID, (result) => {
-            if(result[0].shutter_assembled === false) {
-                logger.info(`${orderID} order is not paid or not assembled yet, so it can't be installed!`);
-                callback(false);
-            }
-            else if(result[0].shutter_assembled === true) {
-                this.orderDao.updateInstalledProperty(orderID, managerName, (order) => {
-                    logger.info(`${JSON.stringify(order)}. ${orderID} orders' installed property is updated successfully!`);
-                    callback(true);
-                });
-            }
-            else if(result[0].shutter_assembled === null || result[0].shutter_assembled === undefined){
-                logger.info(`Internal error! Can't read property "assembled" for installed update!`);
-                callback(false);
-            }
-        });
-    }
+OrderService.prototype.readStatistics = function (callback){
+    this.orderDao.readStatistics((result) => {
+        callback(result);
+    });
 };
 
-OrderService.prototype.listStatistics = function (rank, callback){
-    //TODO implement the dao side for this if needed. This should give back numbers of : paid, unpaid, assembled, not assambled,
-    //TODO installed, not installed orders, and summary of income (Consider an installed order finished)
-};
-
-OrderService.prototype.createInvoice = function (orderID, rank, callback){
-    //TODO Should gather all the information of an order: the customer, the worker, the manager, the window parameters
-    //TODO the shutter model details, the price and lastly some sort of date.
+OrderService.prototype.createInvoice = function (orderID, callback){
+    this.orderDao.readInvoiceData(orderID, (result) => {
+        callback(result);
+    })
 };
 
 

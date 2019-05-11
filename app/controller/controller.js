@@ -87,6 +87,7 @@ router.get('/listUsers', (req, res) => {
 // DON'T TRY THIS AT HOME
 
 //Creates an order from the given data in the request body. It should not be empty or wrong, because the frontend should validate it.
+//Base price is set here only by width and height. The price will be modified in the service module by material and model costs later.
 //It is a customer only function.
 router.post('/createOrder', (req, res) => {
     if (userName != null || userName != "") {
@@ -145,7 +146,7 @@ router.post('/payOrder', (req, res) => {
     if (userName != null || userName != "") {
         if (userRank != null || userRank != "") {
             if (userRank === "customer") {
-                orderService.updatePaidProperty(req.body.orderID, userRank, (response) => {
+                orderService.updatePaidProperty(req.body.orderID, (response) => {
                     res.status(200).send(response);
                 })
             } else {
@@ -165,7 +166,7 @@ router.post('/assembleOrder', (req, res) => {
     if (userName != null || userName != "") {
         if (userRank != null || userRank != "") {
             if (userRank === "worker") {
-                orderService.updateAssembledProperty(req.body.orderID, userName, userRank, (response) => {
+                orderService.updateAssembledProperty(req.body.orderID, userName,(response) => {
                     res.status(200).send(response);
                 })
             } else {
@@ -325,7 +326,7 @@ router.post('/installOrder', (req, res) => {
     if (userName != null || userName != "") {
         if (userRank != null || userRank != "") {
             if (userRank === "manager") {
-                orderService.updateInstalledProperty(req.body.orderID, userName, userRank, (response) => {
+                orderService.updateInstalledProperty(req.body.orderID, userName, (response) => {
                     res.status(200).send(response);
                 })
             } else {
@@ -339,9 +340,10 @@ router.post('/installOrder', (req, res) => {
     }
 });
 
-//TODO list parts (ShutterDao + Shutter contoller -> worker -> listParts)
+//TODO list model information, list shutter models
 //TODO invoice and statistics part for the managers.
 //TODO user data checking for managers (ofc without passwords and all...)
+//TODO all the update and delete functions from service modules
 
 // END OF ORDER REQUESTS SECTION
 

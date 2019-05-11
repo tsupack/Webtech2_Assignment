@@ -16,7 +16,8 @@ Collection structure:
  }
 */
 
-//Creates a DB query by the given parameters. It is an internal function to this module.
+//Creates a DB query by the given parameters.
+//It is an internal function to this module.
 function find(parameters, projection, callback) {
     let client = new MongoClient(mongoConfig.database.url, mongoConfig.config);
     client.connect((error) => {
@@ -46,6 +47,25 @@ function registerUser(user, callback){
         const collection= db.collection(mongoConfig.database.userCollection);
 
         collection.insertOne(user,function(error, data) {
+            assert.strictEqual(error, null);
+            callback(data);
+        });
+        client.close();
+    });
+}
+
+//Updates one user by given parameters.
+//It is an internal function to this module.
+function updateUser(userID, updateSet, callback) {
+    let client = new MongoClient(mongoConfig.database.url, mongoConfig.config);
+    client.connect((error) => {
+        assert.strictEqual(null, error);
+        logger.info("Connected successfully to database (for user property update)!");
+
+        const db = client.db(mongoConfig.database.databaseName);
+        const collection = db.collection(mongoConfig.database.userCollection);
+
+        collection.updateOne({userID: userID}, updateSet, function (error, data) {
             assert.strictEqual(error, null);
             callback(data);
         });
@@ -126,10 +146,23 @@ function readUsers(callback){
     });
 }
 
+//Updates the e-mail property of a given user.
+function updateEmailProperty(userID, email, callback) {
+    let updateSet = {
+        $set: {
+            email: email
+        }
+    };
+    updateUser(userID, updateSet, (result) => {
+        callback(result);
+    });
+}
+
 module.exports = {
     "registerUser" : registerUser,
+    "deleteUser" : deleteUser,
+    "updateEmailProperty": updateEmailProperty,
     "findUser" : findUser,
     "getMaxUserId" : getMaxUserId,
-    "readUsers" : readUsers,
-    "deleteUser" : deleteUser
+    "readUsers" : readUsers
 };

@@ -13,7 +13,7 @@ function UserService(userDao){
 //Searches for the given username at login to get the users data if available.
 UserService.prototype.findUser = function (username, callback) {
     this.userDao.findUser(username, (result) => {
-        if(result === undefined || result[0] == null) {
+        if(result[0] === undefined || result[0] === null) {
             logger.info(`"${username}" user was not found!`);
         }
         else {
@@ -28,7 +28,7 @@ UserService.prototype.loginUser = function  (username, password, callback) {
     logger.info(`User login has started!`);
     this.findUser(username, (user) => {
         let userInfo = [];
-        if(user === undefined || user[0] == null) {
+        if(user[0] === undefined || user[0] === null) {
             logger.info(`"${username}" user is not registered yet!`);
             callback(userInfo);
         }
@@ -59,6 +59,38 @@ UserService.prototype.registerUser = function (user, callback) {
     this.userDao.registerUser(user, (response) => {
         logger.info(`"${JSON.stringify(user)}" user is successfully inserted into the database!`);
         callback(response);
+    });
+};
+
+//Updates a users' e-mail address by username.
+UserService.prototype.updateUserEmail = function(username, email, callback){
+    logger.info(`Updating ${username} user...`);
+    this.userDao.findUser(username, (result) => {
+        if(result[0] === null || result[0] === undefined){
+            logger.info(`Internal error! Can't find ${username} user!`);
+            callback(false);
+        } else {
+            this.userDao.updateEmailProperty(result[0].userID, email,(result) => {
+                logger.info(`${JSON.stringify(result)}. ${username} users' e-mail is updated successfully!`);
+                callback(true);
+            });
+        }
+    });
+};
+
+//Deletes a user by username.
+UserService.prototype.deleteUser = function(username, callback){
+    logger.info(`Deleting ${username} user...`);
+    this.userDao.findUser(username, (result) => {
+        if(result[0] === null || result[0] === undefined){
+            logger.info(`Internal error! Can't find ${username} user!`);
+            callback(false);
+        } else {
+            this.userDao.deleteUser(result[0].userID, (result) => {
+                logger.info(`${JSON.stringify(result)}. ${username} user is deleted successfully!`);
+                callback(true);
+            });
+        }
     });
 };
 
