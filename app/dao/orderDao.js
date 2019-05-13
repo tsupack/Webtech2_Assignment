@@ -3,7 +3,9 @@ const assert = require('assert');
 const appRoot = require('app-root-path');
 const logger = require(`${appRoot}/app/config/logger`);
 const mongoConfig = require(`${appRoot}/app/config/mongo`);
+
 const shutterDao = require(`${appRoot}/app/dao/shutterDao`);
+const elementDao = require(`${appRoot}/app/dao/elementDao`);
 
 /*
 Collection structure:
@@ -11,11 +13,9 @@ Collection structure:
       "orderID" : NUMBER,
       "customer_name" : STRING,
       "customer_email" : STRING,
-      "window_height" : NUMBER,
-      "window_width" : NUMBER,
-      "shutter_model" : NUMBER,
-      "shutter_assembled" : BOOLEAN,
-      "shutter_installed" : BOOLEAN,
+      "shutter_number" : NUMBER,
+      "shutters_assembled" : BOOLEAN,
+      "shutters_installed" : BOOLEAN,
       "worker" : STRING,
       "price" : NUMBER,
       "paid" : BOOLEAN,
@@ -82,6 +82,48 @@ function updateOrder(orderID, updateSet, callback) {
     });
 }
 
+//After inserting the order, and the order elements, it calculates the price for the entire order.
+function updatePriceProperty(orderID, callback) {
+    logger.info(`Started calculating ${orderID} orders' price...`);
+    let calculatedPrice = 0;
+    findOrderById(orderID, (order)=> {
+        if(order[0] === null || order[0] === undefined){
+            logger.info(`Internal error! Can't find ${orderID} order!`);
+            callback(null);
+        } else {
+            elementDao.findElementsById(orderID, (elements) => {
+               if(elements === null || elements === undefined){
+                   logger.info(`Internal error! Can't find ${orderID} order elements!`);
+                   callback(null);
+               } else {
+                   for (let i = 0; i < elements.length; i++) {
+                       shutterDao.findShutterModel(elements[i].shutter_model, (shutter) => {
+                           if(shutter === null || shutter === undefined){
+                               logger.info(`Internal error! Can't find shutter model for ${orderID} orders' ${i} element!`);
+                               callback(false);
+                           } else {
+                               calculatedPrice = ((elements[i].window_width * elements[i].window_height) * 2);
+                               calculatedPrice = calculatedPrice + shutter[0].model_base_price + shutter[0].material_modifier;
+                               logger.info(`Calculated price after ${i} order element is: ${calculatedPrice}`);
+                           }
+                       });
+                   }
+                   logger.info(`Final price is: ${calculatedPrice}`);
+                   let updateSet = {
+                       $set: {
+                           price: calculatedPrice
+                       }
+                   };
+                   logger.info(`Updating ${orderID} orders' price property...`);
+                   updateOrder(orderID, updateSet, (result) => {
+                      callback(result);
+                   });
+               }
+            });
+        }
+    });
+}
+
 //Updates the paid property of an order.
 function updatePaidProperty(orderID, callback) {
     let updateSet = {
@@ -98,7 +140,7 @@ function updatePaidProperty(orderID, callback) {
 function updateAssembledProperty(orderID, workerName, callback) {
     let updateSet = {
         $set: {
-            shutter_assembled: true,
+            shutters_assembled: true,
             worker: workerName
         }
     };
@@ -111,7 +153,7 @@ function updateAssembledProperty(orderID, workerName, callback) {
 function updateInstalledProperty(orderID, managerName, callback) {
     let updateSet = {
         $set: {
-            shutter_installed: true,
+            shutters_installed: true,
             manager: managerName
         }
     };
@@ -122,6 +164,7 @@ function updateInstalledProperty(orderID, managerName, callback) {
 
 //For cleanup purposes after testings.
 function deleteOrder(orderID, callback) {
+    elementDao.deleteElements(orderID);
     let client = new MongoClient(mongoConfig.database.url, mongoConfig.config);
     client.connect((error) => {
         assert.strictEqual(null, error);
@@ -147,11 +190,9 @@ function findOrderByName(customerName, callback) {
                 orderID: 1,
                 customer_name: 1,
                 customer_email: 1,
-                window_height: 1,
-                window_width: 1,
-                shutter_model: 1,
-                shutter_assembled: 1,
-                shutter_installed: 1,
+                shutter_number: 1,
+                shutters_assembled: 1,
+                shutters_installed: 1,
                 worker: 1,
                 price: 1,
                 paid: 1,
@@ -171,11 +212,9 @@ function findOrderById(orderID, callback) {
                 orderID: 1,
                 customer_name: 1,
                 customer_email: 1,
-                window_height: 1,
-                window_width: 1,
-                shutter_model: 1,
-                shutter_assembled: 1,
-                shutter_installed: 1,
+                shutter_number: 1,
+                shutters_assembled: 1,
+                shutters_installed: 1,
                 worker: 1,
                 price: 1,
                 paid: 1,
@@ -214,11 +253,9 @@ function readAllOrders(callback) {
                 orderID: 1,
                 customer_name: 1,
                 customer_email: 1,
-                window_height: 1,
-                window_width: 1,
-                shutter_model: 1,
-                shutter_assembled: 1,
-                shutter_installed: 1,
+                shutter_number: 1,
+                shutters_assembled: 1,
+                shutters_installed: 1,
                 worker: 1,
                 price: 1,
                 paid: 1,
@@ -265,7 +302,7 @@ function readAssembledOrders(callback){
     readAllOrders((result) => {
         let finalResult = [];
         for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_assembled === true){
+            if(result[i].shutters_assembled === true){
                 finalResult.push(result[i]);
             }
         }
@@ -280,7 +317,7 @@ function readNotAssembledOrders(callback){
     readAllOrders((result) => {
         let finalResult = [];
         for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_assembled === false){
+            if(result[i].shutters_assembled === false){
                 finalResult.push(result[i]);
             }
         }
@@ -289,13 +326,13 @@ function readNotAssembledOrders(callback){
     });
 }
 
-//Gives back the list of installed orders.
+//Gives back the list of installed (finished) orders.
 function readInstalledOrders(callback){
     logger.info("Reading list of installed orders...");
     readAllOrders((result) => {
         let finalResult = [];
         for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_installed === true){
+            if(result[i].shutters_installed === true){
                 finalResult.push(result[i]);
             }
         }
@@ -310,7 +347,7 @@ function readNotInstalledOrders(callback){
     readAllOrders((result) => {
         let finalResult = [];
         for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_installed === false){
+            if(result[i].shutters_installed === false){
                 finalResult.push(result[i]);
             }
         }
@@ -333,7 +370,7 @@ function readStatistics(callback){
         paidOrders = result.length();
         logger.info(`${paidOrders} paid orders were found.`);
         for (let i = 0; i < result.length; i++) {
-            if(result[i].shutter_installed === true){
+            if(result[i].shutters_installed === true){
                 income = income + result[i].price;
             }
         }
@@ -372,43 +409,29 @@ function readStatistics(callback){
     callback(statistics);
 }
 
+//Generates the base of an invoice.
 function readInvoiceData(orderID, callback){
     logger.info(`Generating invoice data for ${orderID} order...`);
     findOrderById(orderID, (order) => {
         if(order[0] === null || order[0] === undefined){
             logger.info(`Internal error! Can't find ${orderID} order!`);
             callback(null);
-        } else if (order[0].paid === false || order[0].shutter_assembled === false || order[0].shutter_installed === false) {
+        } else if (order[0].paid === false || order[0].shutters_assembled === false || order[0].shutters_installed === false) {
             logger.info(`Can't generate invoice for ${orderID} order, because it is not finished yet!`);
             callback(null);
         } else {
-            shutterDao.findShutterModel(order[0].shutter_model, (shutter) => {
-                if(shutter[0] === null || shutter[0] === undefined){
-                    logger.info(`Internal error! Can't find shutter model for ${orderID} order!`);
-                    callback(null);
-                } else {
-                    let invoiceData = {
-                        orderID: order[0].orderID,
-                        customer_name: order[0].customer_name,
-                        customer_email: order[0].customer_email,
-                        window_height: order[0].window_height,
-                        window_width: order[0].window_width,
-                        shutter_model: order[0].shutter_model,
-                        model_name : shutter[0].model_name,
-                        parts : shutter[0].parts,
-                        model_base_price : shutter[0].model_base_price,
-                        material_modifier : shutter[0].material_modifier,
-                        shutter_assembled: order[0].shutter_assembled,
-                        shutter_installed: order[0].shutter_installed,
-                        worker: order[0].worker,
-                        price: order[0].price,
-                        paid: order[0].paid,
-                        manager: order[0].manager
-                    };
-                    logger.info(`Data gathered for ${orderID} orders' invoice: ${JSON.stringify(statistics)}`);
-                    callback(invoiceData);
-                }
-            });
+            let invoiceData = {
+                orderID: order[0].orderID,
+                customer_name: order[0].customer_name,
+                customer_email: order[0].customer_email,
+                shutter_number: order[0].shutter_number,
+                worker: order[0].worker,
+                price: order[0].price,
+                paid: order[0].paid,
+                manager: order[0].manager
+            };
+            logger.info(`Data gathered for ${orderID} orders' invoice: ${JSON.stringify(invoiceData)}`);
+            callback(invoiceData);
         }
     });
 }
@@ -431,6 +454,7 @@ module.exports = {
     "readStatistics": readStatistics,
     "readInvoiceData": readInvoiceData,
 
+    "updatePriceProperty": updatePriceProperty,
     "updatePaidProperty": updatePaidProperty,
     "updateAssembledProperty": updateAssembledProperty,
     "updateInstalledProperty": updateInstalledProperty,

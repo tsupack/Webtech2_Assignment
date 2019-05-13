@@ -21,11 +21,9 @@ db.orders.insertMany(
       "orderID" : 1,
       "customer_name" : "Vásárló István",
       "customer_email" : "vasarlo@istvan.com",
-      "window_height" : 150,
-      "window_width" : 150,
-      "shutter_model" : 1,
-      "shutter_assembled" : false,
-      "shutter_installed" : false,
+      "shutter_number" : 2,
+      "shutters_assembled" : false,
+      "shutters_installed" : false,
       "worker" : "",
       "price" : 0,
       "paid" : false,
@@ -35,11 +33,9 @@ db.orders.insertMany(
       "orderID" : 2,
       "customer_name" : "Vásárló János",
       "customer_email" : "vasarlo@janos.com",
-      "window_height" : 150,
-      "window_width" : 100,
-      "shutter_model" : 2,
-      "shutter_assembled" : false,
-      "shutter_installed" : false,
+      "shutter_number" : 2,
+      "shutters_assembled" : false,
+      "shutters_installed" : false,
       "worker" : "",
       "price" : 0,
       "paid" : false,
@@ -49,15 +45,59 @@ db.orders.insertMany(
       "orderID" : 3,
       "customer_name" : "Vásárló Géza",
       "customer_email" : "vasarlo@geza.com",
-      "window_height" : 100,
-      "window_width" : 150,
-      "shutter_model" : 3,
-      "shutter_assembled" : false,
-      "shutter_installed" : false,
+      "shutter_number" : 3,
+      "shutters_assembled" : false,
+      "shutters_installed" : false,
       "worker" : "",
       "price" : 0,
       "paid" : false,
       "manager" : ""
+  }
+])
+
+db.elements.insertMany(
+[
+  {
+    "orderID" : 1,
+    "window_height" : 150,
+    "window_width" : 150,
+    "shutter_model" : 1
+  },
+  {
+    "orderID" : 1,
+    "window_height" : 100,
+    "window_width" : 100,
+    "shutter_model" : 1
+  },
+  {
+    "orderID" : 2,
+    "window_height" : 150,
+    "window_width" : 100,
+    "shutter_model" : 2
+  },
+  {
+    "orderID" : 2,
+    "window_height" : 100,
+    "window_width" : 150,
+    "shutter_model" : 2
+  },
+  {
+    "orderID" : 3,
+    "window_height" : 200,
+    "window_width" : 200,
+    "shutter_model" : 3
+  },
+  {
+    "orderID" : 3,
+    "window_height" : 200,
+    "window_width" : 250,
+    "shutter_model" : 3
+  },
+  {
+    "orderID" : 3,
+    "window_height" : 250,
+    "window_width" : 200,
+    "shutter_model" : 3
   }
 ])
 

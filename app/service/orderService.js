@@ -23,6 +23,18 @@ OrderService.prototype.createOrder = function (order, callback) {
     });
 };
 
+//Updates an orders' price property, after a customer finishes taking the order.
+OrderService.prototype.updatePriceProperty = function(orderID, callback){
+    this.orderDao.updatePriceProperty(orderID, (result) => {
+        if(result === null || result === undefined){
+            logger.info(`Error! Can't update ${orderID} orders' price!`);
+            callback(false);
+        } else {
+            logger.info(`${JSON.stringify(result)}. ${orderID} orders' paid property is updated successfully!`);
+            callback(true);
+        }
+    });
+};
 
 //Updates an orders' paid property, if a customer finishes payment.
 //This action requires the user to be on a customer rank to commit.
@@ -42,7 +54,7 @@ OrderService.prototype.updatePaidProperty = function(orderID, callback){
 };
 
 //Updates an orders' assembled property and assigns the worker, if the worker finished working on it.
-//If the order is not paid yet, then it will return null.
+//If the order is not paid yet, then it will return false.
 //This action requires the user to be on a worker rank to commit.
 OrderService.prototype.updateAssembledProperty = function(orderID, workerName, callback){
     logger.info(`Updating assembled property of ${orderID} order...`);
@@ -63,7 +75,7 @@ OrderService.prototype.updateAssembledProperty = function(orderID, workerName, c
 };
 
 //Updates an orders' installed property and assigns the manager, if the manager finished working on it.
-//If the order is not assembled (or paid) yet, then it will return null.
+//If the order is not assembled (or paid) yet, then it will return false.
 //This action requires the user to be on a manager rank to commit.
 OrderService.prototype.updateInstalledProperty = function(orderID, managerName, callback){
     logger.info(`Updating installed property of ${orderID} order...`);
@@ -99,17 +111,30 @@ OrderService.prototype.deleteOrder = function(orderID, callback){
     });
 };
 
-//Gives back all the orders in the collection. Mostly for managerial purproses.
+//Gives back all the orders in the collection. Mostly for managerial purposes.
 OrderService.prototype.readAllOrders = function(callback){
     this.orderDao.readAllOrders((orders) => {
         callback(orders);
     });
 };
 
-//Calls to get the highest ID currently in the collection at new item insertion.
-OrderService.prototype.readUserOrders = function (userName, callback) {
-    this.orderDao.findOrderByName( userName,(orders) => {
-        logger.info(`"${JSON.stringify(orders)}" orders were found in the database for ${userName}!`);
+//Calls to get all the orders of a user by name. Also, if the order price is zero, then it tries to calculate it.
+OrderService.prototype.readUserOrders = function (username, callback) {
+    this.orderDao.findOrderByName( username,(orders) => {
+        logger.info(`"${JSON.stringify(orders)}" orders were found in the database for ${username}!`);
+        for(let i = 0; i < orders.length(); i++){
+            if(orders[i].price === 0){
+                this.updatePriceProperty(orders[i].orderID, (result) => {
+                    if(result){
+                        logger.info(`${orders[i].orderID} orders' price property was updated successfully!`);
+                    } else {
+                        logger.info(`${orders[i].orderID} orders' price property is not updated! There is no elements, or wrong shutter model!`);
+                    }
+                });
+            } else {
+                logger.info(`Price is already set!`);
+            }
+        }
         callback(orders);
     });
 };
@@ -164,7 +189,8 @@ OrderService.prototype.readStatistics = function (callback){
     });
 };
 
-OrderService.prototype.createInvoice = function (orderID, callback){
+//Reads the base information of an invoice.
+OrderService.prototype.readInvoiceData = function (orderID, callback){
     this.orderDao.readInvoiceData(orderID, (result) => {
         callback(result);
     })

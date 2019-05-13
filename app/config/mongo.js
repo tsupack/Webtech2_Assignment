@@ -1,10 +1,12 @@
 const mongoConfig = {
     database: {
         url: 'mongodb://localhost:27017',
+        //url: 'mongodb://172.21.0.10:27017',
         databaseName: 'shutterDB',
         userCollection: 'users',
+        shutterCollection: 'shutters',
         orderCollection: 'orders',
-        shutterCollection: 'shutters'
+        elementCollection: 'elements'
     },
     config: {
         useNewUrlParser: true

@@ -27,24 +27,24 @@ UserService.prototype.findUser = function (username, callback) {
 UserService.prototype.loginUser = function  (username, password, callback) {
     logger.info(`User login has started!`);
     this.findUser(username, (user) => {
-        let userInfo = [];
         if(user[0] === undefined || user[0] === null) {
             logger.info(`"${username}" user is not registered yet!`);
-            callback(userInfo);
+            callback(null);
         }
         else {
             if(password === user[0].password){
                 logger.info(`"${username}" user successfully logged in!`);
-                userInfo.push({
-                    name : user[0].name,
-                    rank : user[0].rank,
-                    email : user[0].email
-                });
+                let userInfo = {
+                    name: user[0].name,
+                    rank: user[0].rank,
+                    email: user[0].email
+                };
+                callback(userInfo);
             }
             else {
                 logger.info(`Password for "${username}" user is incorrect!`);
+                callback(null);
             }
-            callback(userInfo);
         }
     })
 };

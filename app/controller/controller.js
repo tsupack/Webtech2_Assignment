@@ -8,6 +8,12 @@ const userService = new UserService();
 var OrderService = require(`${appRoot}/app/service/orderService`);
 const orderService = new OrderService();
 
+var ShutterService = require(`${appRoot}/app/service/shutterService`);
+const shutterService = new ShutterService();
+
+var ElementService = require(`${appRoot}/app/service/elementService`);
+const elementService = new ElementService();
+
 var userName = null;
 var userRank = null;
 var userEmail = null;
@@ -26,7 +32,7 @@ router.post('/login', (req, res) => {
                     userRank = response[0].rank;
                     userEmail = response[0].email;
                     loggedIn = true;
-                    res.status(200).send(response[0]);
+                    res.status(200).send(response);
                 } else {
                     userName = null;
                     userRank = null;
@@ -74,20 +80,43 @@ router.post('/register', (req, res) => {
 
 //For debug purposes only.
 router.get('/listUsers', (req, res) => {
-    userService.listUsers((response) => {
-        res.status(200).send(response);
-    })
+    if (userName != null || userName != "") {
+        if (userRank != null || userRank != "") {
+            if (userRank === "manager") {
+                userService.listUsers((response) => {
+                    res.status(200).send(response);
+                });
+            } else {
+                res.status(400).send("Unauthorised user action!");
+            }
+        } else {
+            res.status(400).send("Manager information is missing!");
+        }
+    } else {
+        res.status(400).send("Manager information is missing!");
+    }
 });
 
 // END OF USER REQUESTS SECTION
 //----------------------------------------------------------------------------------------------------------------------
-// START OF ORDER REQUESTS SECTION
+// START OF ORDER CREATING AND MANAGING REQUESTS SECTION
 // From here, the most important task is to make sure, that the functions are unreachable for unregistered and unauthorised
 // users, to keep things somewhat safer IRL too. My method is sure not the right way to do this, but it will definitely work!
 // DON'T TRY THIS AT HOME
 
-//Creates an order from the given data in the request body. It should not be empty or wrong, because the frontend should validate it.
-//Base price is set here only by width and height. The price will be modified in the service module by material and model costs later.
+//Lists all the available shutter model information.
+router.post('/listShutterModels', (req, res) => {
+    if (userName != null || userName != "") {
+        shutterService.readShutterModels((response) => {
+            res.status(200).send(response);
+        });
+    } else {
+        res.status(400).send("User information is missing!");
+    }
+});
+
+//Creates an order from the given data in the request body. It should not be empty or wrong,
+//because the frontend should validate it.
 //It is a customer only function.
 router.post('/createOrder', (req, res) => {
     if (userName != null || userName != "") {
@@ -99,13 +128,11 @@ router.post('/createOrder', (req, res) => {
                             orderID: 0, //This will get the proper ID in the service module.
                             customer_name: userName,
                             customer_email: userEmail,
-                            window_height: req.body.window_height,
-                            window_width: req.body.window_width,
-                            shutter_model: req.body.shutter_model,
-                            shutter_assembled: false,
-                            shutter_installed: false,
+                            shutter_number: req.body.shutter_number,
+                            shutters_assembled: false,
+                            shutters_installed: false,
                             worker: "",
-                            price: ((req.body.window_height * req.body.window_width) * 2),
+                            price: 0, //This will get the proper value in the service module.
                             paid: false,
                             manager: ""
                         },
@@ -129,12 +156,63 @@ router.post('/createOrder', (req, res) => {
     }
 });
 
+//Creates an element for an order from the given data in the request body. It should not be empty or wrong,
+//because the frontend should validate it.
+//It is a customer only function.
+router.post('/createElement', (req, res) => {
+    if (userName != null || userName != "") {
+        if (userRank != null || userRank != "") {
+            if (userEmail != null || userEmail != "") {
+                if (userRank === "customer") {
+                    elementService.createElement(
+                        {
+                            orderID: req.body.orderID, //This will get the proper ID in the service module.
+                            window_height : req.body.window_height,
+                            window_width : req.body.window_width,
+                            shutter_number : req.body.shutter_number
+                        },
+                        () => {
+                            res.status(200).send("Element creation for order was successful!");
+                        },
+                        (cause) => {
+                            res.status(400).send(cause);
+                        });
+                } else {
+                    res.status(400).send("Unauthorised user action!");
+                }
+            } else {
+                res.status(400).send("Customer information is missing!");
+            }
+        } else {
+            res.status(400).send("Customer information is missing!");
+        }
+    } else {
+        res.status(400).send("Customer information is missing!");
+    }
+});
+
 //Lists all orders with all the information for a customer.
+//For customers only.
 router.get('/listMyOrders', (req, res) => {
     if (userName != null || userName != "") {
-        orderService.readUserOrders(userName, (response) => {
+        if (userRank === "customer") {
+            orderService.readUserOrders(userName, (response) => {
+                res.status(200).send(response);
+            });
+        } else {
+            res.status(400).send("User information is missing!");
+        }
+    } else {
+        res.status(400).send("User information is missing!");
+    }
+});
+
+//Lists all the elements information for an order.
+router.post('/listOrderElements', (req, res) => {
+    if (userName != null || userName != "") {
+        elementService.readElementsData(req.body.orderID, (response) => {
             res.status(200).send(response);
-        })
+        });
     } else {
         res.status(400).send("User information is missing!");
     }
@@ -148,7 +226,7 @@ router.post('/payOrder', (req, res) => {
             if (userRank === "customer") {
                 orderService.updatePaidProperty(req.body.orderID, (response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -168,7 +246,7 @@ router.post('/assembleOrder', (req, res) => {
             if (userRank === "worker") {
                 orderService.updateAssembledProperty(req.body.orderID, userName,(response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -188,7 +266,7 @@ router.get('/listAssembledOrders', (req, res) => {
             if (userRank === "worker" || userRank === "manager") {
                 orderService.readAssembledOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -208,7 +286,7 @@ router.get('/listNotAssembledOrders', (req, res) => {
             if (userRank === "worker" || userRank === "manager") {
                 orderService.readNotAssembledOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -228,7 +306,7 @@ router.get('/listAllOrders', (req, res) => {
             if (userRank === "manager") {
                 orderService.readAllOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -248,7 +326,7 @@ router.get('/listPaidOrders', (req, res) => {
             if (userRank === "manager") {
                 orderService.readPaidOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -268,7 +346,7 @@ router.get('/listUnpaidOrders', (req, res) => {
             if (userRank === "manager") {
                 orderService.readUnpaidOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -288,7 +366,7 @@ router.get('/listInstalledOrders', (req, res) => {
             if (userRank === "manager") {
                 orderService.readInstalledOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -308,7 +386,7 @@ router.get('/listNotInstalledOrders', (req, res) => {
             if (userRank === "manager") {
                 orderService.readNotInstalledOrders((response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -328,7 +406,7 @@ router.post('/installOrder', (req, res) => {
             if (userRank === "manager") {
                 orderService.updateInstalledProperty(req.body.orderID, userName, (response) => {
                     res.status(200).send(response);
-                })
+                });
             } else {
                 res.status(400).send("Unauthorised user action!");
             }
@@ -340,11 +418,47 @@ router.post('/installOrder', (req, res) => {
     }
 });
 
-//TODO list model information, list shutter models
-//TODO invoice and statistics part for the managers.
-//TODO user data checking for managers (ofc without passwords and all...)
-//TODO all the update and delete functions from service modules
+//Lists the data of the current state of business.
+//For managers only.
+router.get('/listStatistics', (req, res) => {
+    if (userName != null || userName != "") {
+        if (userRank != null || userRank != "") {
+            if (userRank === "manager") {
+                orderService.readStatistics((response) => {
+                    res.status(200).send(response);
+                });
+            } else {
+                res.status(400).send("Unauthorised user action!");
+            }
+        } else {
+            res.status(400).send("Manager information is missing!");
+        }
+    } else {
+        res.status(400).send("Manager information is missing!");
+    }
+});
 
-// END OF ORDER REQUESTS SECTION
+//Lists the base information of an invoice. It should be called in hands with /listOrderElements to get all the required data.
+//I could not find any better solution for this problem so far.
+//For managers only.
+router.post('/createInvoice', (req, res) => {
+    if (userName != null || userName != "") {
+        if (userRank != null || userRank != "") {
+            if (userRank === "manager") {
+                orderService.readInvoiceData(req.body.orderID, (response) => {
+                    res.status(200).send(response);
+                });
+            } else {
+                res.status(400).send("Unauthorised user action!");
+            }
+        } else {
+            res.status(400).send("Manager information is missing!");
+        }
+    } else {
+        res.status(400).send("Manager information is missing!");
+    }
+});
+
+//TODO all the update and delete functions from service modules
 
 module.exports = router;
