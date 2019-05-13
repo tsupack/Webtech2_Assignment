@@ -92,19 +92,20 @@ function findElementsById(orderID, callback) {
 function readElementsData (orderID, callback) {
     logger.info(`Gathering info for ${orderID} orders' elements list...`);
     let finalResult = [];
-    let result = null;
+
     findElementsById(orderID, (elements) => {
        if(elements === null || elements === undefined){
            logger.info(`Internal error! Can!t find elements for ${orderID} order!`);
            callback(null);
        } else {
-           for(let i = 0; i < elements.length(); i++){
+           let counter = 0;
+           for(let i = 0; i < elements.length; i++){
                shutterDao.findShutterModel(elements[i].shutter_model, (shutter) => {
                   if(shutter === null || shutter === undefined){
                       logger.info(`Internal error! Can!t find shutter model for ${i} order element!`);
                       callback(null);
                   } else {
-                      result = {
+                      let result = {
                           orderID: elements[i].orderID,
                           window_height: elements[i].window_height,
                           window_width: elements[i].window_width,
@@ -116,6 +117,10 @@ function readElementsData (orderID, callback) {
 
                       };
                       finalResult.push(result);
+                      counter++;
+                      if(counter === elements.length){
+                          callback(finalResult);
+                      }
                   }
                });
            }

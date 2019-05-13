@@ -55,10 +55,10 @@ UserService.prototype.registerUser = function (user, callback) {
     this.userDao.getMaxUserId((maxID) => {
         logger.info(`The found maximum ID was: ${maxID}`);
         user.userID = (maxID + 1);
-    });
-    this.userDao.registerUser(user, (response) => {
-        logger.info(`"${JSON.stringify(user)}" user is successfully inserted into the database!`);
-        callback(response);
+        this.userDao.registerUser(user, (response) => {
+            logger.info(`"${JSON.stringify(user)}" user is successfully inserted into the database!`);
+            callback(response);
+        });
     });
 };
 

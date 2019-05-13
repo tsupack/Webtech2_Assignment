@@ -27,10 +27,10 @@ router.post('/login', (req, res) => {
     if (req.body.username != null) {
         if (req.body.password != null) {
             userService.loginUser(req.body.username, req.body.password, (response) => {
-                if (response[0] != null || response[0] != undefined) {
-                    userName = response[0].name;
-                    userRank = response[0].rank;
-                    userEmail = response[0].email;
+                if (response != null || response != undefined) {
+                    userName = response.name;
+                    userRank = response.rank;
+                    userEmail = response.email;
                     loggedIn = true;
                     res.status(200).send(response);
                 } else {
@@ -38,7 +38,7 @@ router.post('/login', (req, res) => {
                     userRank = null;
                     userEmail = null;
                     loggedIn = false;
-                    res.status(400).send("User not found!");
+                    res.status(400).send("User data is incorrect!");
                 }
             })
         }
@@ -105,7 +105,7 @@ router.get('/listUsers', (req, res) => {
 // DON'T TRY THIS AT HOME
 
 //Lists all the available shutter model information.
-router.post('/listShutterModels', (req, res) => {
+router.get('/listShutterModels', (req, res) => {
     if (userName != null || userName != "") {
         shutterService.readShutterModels((response) => {
             res.status(200).send(response);
@@ -169,7 +169,7 @@ router.post('/createElement', (req, res) => {
                             orderID: req.body.orderID, //This will get the proper ID in the service module.
                             window_height : req.body.window_height,
                             window_width : req.body.window_width,
-                            shutter_number : req.body.shutter_number
+                            shutter_model : req.body.shutter_model
                         },
                         () => {
                             res.status(200).send("Element creation for order was successful!");
@@ -188,6 +188,17 @@ router.post('/createElement', (req, res) => {
         }
     } else {
         res.status(400).send("Customer information is missing!");
+    }
+});
+
+//Lists all the elements information for an order.
+router.post('/calculatePrice', (req, res) => {
+    if (userName != null || userName != "") {
+        orderService.setPrice(req.body.orderID, (response) => {
+            res.status(200).send(response);
+        });
+    } else {
+        res.status(400).send("User information is missing!");
     }
 });
 
@@ -460,5 +471,6 @@ router.post('/createInvoice', (req, res) => {
 });
 
 //TODO all the update and delete functions from service modules
+//TODO uniqueness check at registration for username
 
 module.exports = router;

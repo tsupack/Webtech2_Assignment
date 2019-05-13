@@ -16,10 +16,10 @@ ShutterService.prototype.createShutterModel = function (shutter, callback) {
     this.shutterDao.getMaxShutterId((maxID) => {
         logger.info(`The found maximum ID was: ${maxID}`);
         shutter.modelID = (maxID + 1);
-    });
-    this.shutterDao.insertShutterModel(shutter, (response) => {
-        logger.info(`"${JSON.stringify(shutter)}" shutter is successfully inserted into the database!`);
-        callback(response);
+        this.shutterDao.insertShutterModel(shutter, (response) => {
+            logger.info(`"${JSON.stringify(shutter)}" shutter is successfully inserted into the database!`);
+            callback(response);
+        });
     });
 };
 
@@ -42,7 +42,7 @@ ShutterService.prototype.updateShutterPrice = function(modelID, modelBasePrice, 
 //Searches for the given model id to get the shutter models' data.
 ShutterService.prototype.findShutterModel = function (modelID, callback) {
     this.shutterDao.findShutterModel(modelID, (result) => {
-        if(result[0] === undefined || result[0] === null) {
+        if(result[0] === null || result[0] === undefined) {
             logger.info(`"${modelID}" shutter model was not found!`);
         }
         else {
@@ -75,4 +75,4 @@ ShutterService.prototype.readShutterModels = function(callback){
     });
 };
 
-module.exports = UserService;
+module.exports = ShutterService;

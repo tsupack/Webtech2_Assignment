@@ -16,22 +16,21 @@ OrderService.prototype.createOrder = function (order, callback) {
     this.orderDao.getMaxOrderId((maxID) => {
         logger.info(`The found maximum ID was: ${maxID}`);
         order.orderID = (maxID + 1);
-    });
-    this.orderDao.createOrder(order, (response) => {
-        logger.info(`"${JSON.stringify(order)}" order is successfully inserted into the database!`);
-        callback(response);
+        this.orderDao.createOrder(order, (response) => {
+            logger.info(`"${JSON.stringify(order)}" order is successfully inserted into the database!`);
+            callback(response);
+        });
     });
 };
 
-//Updates an orders' price property, after a customer finishes taking the order.
-OrderService.prototype.updatePriceProperty = function(orderID, callback){
+OrderService.prototype.setPrice = function(orderID, callback){
     this.orderDao.updatePriceProperty(orderID, (result) => {
-        if(result === null || result === undefined){
-            logger.info(`Error! Can't update ${orderID} orders' price!`);
-            callback(false);
-        } else {
-            logger.info(`${JSON.stringify(result)}. ${orderID} orders' paid property is updated successfully!`);
+        if(result){
+            logger.info(`${orderID} orders' price property was updated successfully!`);
             callback(true);
+        } else {
+            logger.info(`${orderID} orders' price property is not updated! There is no elements, or wrong shutter model!`);
+            callback(false);
         }
     });
 };
@@ -41,7 +40,7 @@ OrderService.prototype.updatePriceProperty = function(orderID, callback){
 OrderService.prototype.updatePaidProperty = function(orderID, callback){
     logger.info(`Updating paid property of ${orderID} order...`);
     this.orderDao.findOrderById(orderID, (result) => {
-        if(result[0].paid === null || result[0].paid === undefined){
+        if(result[0] === null || result[0] === undefined){
             logger.info(`Internal error! Can't read property "paid" for payment update!`);
             callback(false);
         } else {
@@ -59,7 +58,7 @@ OrderService.prototype.updatePaidProperty = function(orderID, callback){
 OrderService.prototype.updateAssembledProperty = function(orderID, workerName, callback){
     logger.info(`Updating assembled property of ${orderID} order...`);
     this.orderDao.findOrderById(orderID, (result) => {
-        if(result[0].paid === null || result[0].paid === undefined){
+        if(result[0] === null || result[0] === undefined){
             logger.info(`Internal error! Can't read property "paid" for assembly update!`);
             callback(false);
         } else if(result[0].paid === false) {
@@ -80,13 +79,13 @@ OrderService.prototype.updateAssembledProperty = function(orderID, workerName, c
 OrderService.prototype.updateInstalledProperty = function(orderID, managerName, callback){
     logger.info(`Updating installed property of ${orderID} order...`);
     this.orderDao.findOrderById(orderID, (result) => {
-        if(result[0].shutter_assembled === null || result[0].shutter_assembled === undefined){
+        if(result[0] === null || result[0] === undefined){
             logger.info(`Internal error! Can't read property "assembled" for installed update!`);
             callback(false);
-        } else if(result[0].shutter_assembled === false) {
+        } else if(result[0].shutters_assembled === false) {
             logger.info(`${orderID} order is not paid or not assembled yet, so it can't be installed!`);
             callback(false);
-        } else if(result[0].shutter_assembled === true) {
+        } else if(result[0].shutters_assembled === true) {
             this.orderDao.updateInstalledProperty(orderID, managerName, (order) => {
                 logger.info(`${JSON.stringify(order)}. ${orderID} orders' installed property is updated successfully!`);
                 callback(true);
@@ -118,24 +117,16 @@ OrderService.prototype.readAllOrders = function(callback){
     });
 };
 
-//Calls to get all the orders of a user by name. Also, if the order price is zero, then it tries to calculate it.
+//Calls to get all the orders of a user by name.
 OrderService.prototype.readUserOrders = function (username, callback) {
     this.orderDao.findOrderByName( username,(orders) => {
-        logger.info(`"${JSON.stringify(orders)}" orders were found in the database for ${username}!`);
-        for(let i = 0; i < orders.length(); i++){
-            if(orders[i].price === 0){
-                this.updatePriceProperty(orders[i].orderID, (result) => {
-                    if(result){
-                        logger.info(`${orders[i].orderID} orders' price property was updated successfully!`);
-                    } else {
-                        logger.info(`${orders[i].orderID} orders' price property is not updated! There is no elements, or wrong shutter model!`);
-                    }
-                });
-            } else {
-                logger.info(`Price is already set!`);
-            }
+        if(orders[0] === null || orders[0] === undefined) {
+            logger.info(`Internal error! Can't find any orders for ${username}!`);
+            callback(null);
+        } else {
+            logger.info(`"${JSON.stringify(orders)}" orders were found in the database for ${username}!`);
+            callback(orders);
         }
-        callback(orders);
     });
 };
 

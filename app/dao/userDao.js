@@ -138,7 +138,6 @@ function readUsers(callback){
                 name : 1,
                 email : 1,
                 username : 1,
-                password : 0,
                 rank : 1
             }
         }, (result) => {

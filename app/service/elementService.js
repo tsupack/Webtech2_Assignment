@@ -34,3 +34,5 @@ ElementService.prototype.readElementsData = function (orderID, callback) {
         callback(elements);
     });
 };
+
+module.exports = ElementService;

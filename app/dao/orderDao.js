@@ -85,39 +85,45 @@ function updateOrder(orderID, updateSet, callback) {
 //After inserting the order, and the order elements, it calculates the price for the entire order.
 function updatePriceProperty(orderID, callback) {
     logger.info(`Started calculating ${orderID} orders' price...`);
-    let calculatedPrice = 0;
+    let price = 0;
     findOrderById(orderID, (order)=> {
-        if(order[0] === null || order[0] === undefined){
+        if(order === null || order === undefined){
             logger.info(`Internal error! Can't find ${orderID} order!`);
-            callback(null);
+            callback(false);
         } else {
             elementDao.findElementsById(orderID, (elements) => {
                if(elements === null || elements === undefined){
                    logger.info(`Internal error! Can't find ${orderID} order elements!`);
-                   callback(null);
+                   callback(false);
                } else {
+                   let counter = 0;
                    for (let i = 0; i < elements.length; i++) {
+
                        shutterDao.findShutterModel(elements[i].shutter_model, (shutter) => {
+                           let calculatedPrice = 0;
                            if(shutter === null || shutter === undefined){
                                logger.info(`Internal error! Can't find shutter model for ${orderID} orders' ${i} element!`);
                                callback(false);
                            } else {
-                               calculatedPrice = ((elements[i].window_width * elements[i].window_height) * 2);
-                               calculatedPrice = calculatedPrice + shutter[0].model_base_price + shutter[0].material_modifier;
-                               logger.info(`Calculated price after ${i} order element is: ${calculatedPrice}`);
+                               calculatedPrice = (((elements[i].window_width * elements[i].window_height) * 2)+ shutter[0].model_base_price + shutter[0].material_modifier);
+                               price = price + calculatedPrice
+                               logger.info(`Calculated price after ${i} order element is: ${price}`);
+                               counter++;
+                               if(counter === elements.length){
+                                   logger.info(`Final price is: ${price}.`);
+                                   let updateSet = {
+                                       $set: {
+                                           price: price
+                                       }
+                                   };
+                                   logger.info(`Updating ${orderID} orders' price property...`);
+                                   updateOrder(orderID, updateSet, () => {
+                                   });
+                                   callback(true);
+                               }
                            }
-                       });
+                       })
                    }
-                   logger.info(`Final price is: ${calculatedPrice}`);
-                   let updateSet = {
-                       $set: {
-                           price: calculatedPrice
-                       }
-                   };
-                   logger.info(`Updating ${orderID} orders' price property...`);
-                   updateOrder(orderID, updateSet, (result) => {
-                      callback(result);
-                   });
                }
             });
         }
@@ -367,7 +373,7 @@ function readStatistics(callback){
     let notInstalledOrders = 0;
     let income = 0;
     readPaidOrders((result) => {
-        paidOrders = result.length();
+        paidOrders = result.length;
         logger.info(`${paidOrders} paid orders were found.`);
         for (let i = 0; i < result.length; i++) {
             if(result[i].shutters_installed === true){
@@ -375,45 +381,52 @@ function readStatistics(callback){
             }
         }
         logger.info(`${income} is the total income.`);
+        readUnpaidOrders((result) => {
+            unpaidOrders = result.length;
+            logger.info(`${unpaidOrders} unpaid orders were found.`);
+            readAssembledOrders((result) => {
+                assembledOrders = result.length;
+                logger.info(`${assembledOrders} assembled orders were found.`);
+                readNotAssembledOrders((result) => {
+                    notAssembledOrders = result.length;
+                    logger.info(`${notAssembledOrders} not assembled orders were found.`);
+                    readInstalledOrders((result) => {
+                        installedOrders = result.length;
+                        logger.info(`${installedOrders} installed orders were found.`);
+                    });
+                    readNotInstalledOrders((result) => {
+                        notInstalledOrders = result.length;
+                        logger.info(`${notInstalledOrders} not installed orders were found.`);
+                        let statistics = {
+                            paidOrders: paidOrders,
+                            unpaidOrders: unpaidOrders,
+                            assembledOrders: assembledOrders,
+                            notAssembledOrders: notAssembledOrders,
+                            installedOrders: installedOrders,
+                            notInstalledOrders: notInstalledOrders,
+                            income: income,
+                        };
+                        logger.info(`Data gathered for statistics is: ${JSON.stringify(statistics)}`);
+                        callback(statistics);
+                    });
+                });
+            });
+        });
     });
-    readUnpaidOrders((result) => {
-        unpaidOrders = result.length();
-        logger.info(`${unpaidOrders} unpaid orders were found.`);
-    });
-    readAssembledOrders((result) => {
-        assembledOrders = result.length();
-        logger.info(`${assembledOrders} assembled orders were found.`);
-    });
-    readNotAssembledOrders((result) => {
-        notAssembledOrders = result.length();
-        logger.info(`${notAssembledOrders} not assembled orders were found.`);
-    });
-    readInstalledOrders((result) => {
-        installedOrders = result.length();
-        logger.info(`${installedOrders} installed orders were found.`);
-    });
-    readNotInstalledOrders((result) => {
-        notInstalledOrders = result.length();
-        logger.info(`${notInstalledOrders} not installed orders were found.`);
-    });
-    let statistics = {
-        paidOrders: paidOrders,
-        unpaidOrders: unpaidOrders,
-        assembledOrders: assembledOrders,
-        notAssembledOrders: notAssembledOrders,
-        installedOrders: installedOrders,
-        notInstalledOrders: notInstalledOrders,
-        income: income,
-    }
-    logger.info(`Data gathered for statistics is: ${JSON.stringify(statistics)}`);
-    callback(statistics);
+
+
+
+
+
+
+
 }
 
 //Generates the base of an invoice.
 function readInvoiceData(orderID, callback){
     logger.info(`Generating invoice data for ${orderID} order...`);
     findOrderById(orderID, (order) => {
-        if(order[0] === null || order[0] === undefined){
+        if(order === null || order === undefined){
             logger.info(`Internal error! Can't find ${orderID} order!`);
             callback(null);
         } else if (order[0].paid === false || order[0].shutters_assembled === false || order[0].shutters_installed === false) {
