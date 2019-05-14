@@ -1,0 +1,23 @@
+@import "custom-variables";
+@import "../../node_modules/bootstrap/scss/bootstrap";
+@import "../../node_modules/font-awesome/scss/font-awesome";
+
+.formLabels {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.statRowMargin {
+  margin-bottom: 100px;
+}
+
+.cardHeaderTexts {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.spacer {
+  padding-top: 50px;
+  padding-bottom: 50px
+}
+
