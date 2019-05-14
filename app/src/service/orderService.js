@@ -1,12 +1,12 @@
 const appRoot = require('app-root-path');
-const logger = require(`${appRoot}/app/config/logger`);
+const logger = require(`${appRoot}/app/src/config/logger`);
 
 function OrderService(orderDao){
     if(orderDao != undefined || orderDao != null){
         this.orderDao = orderDao;
     }
     else {
-        this.orderDao = require(`${appRoot}/app/dao/orderDao`);
+        this.orderDao = require(`${appRoot}/app/src/dao/orderDao`);
     }
 }
 

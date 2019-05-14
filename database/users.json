@@ -1,0 +1,6 @@
+{ "_id" : {"$oid":"5cda0da6ad3233e78b539453"}, "userID" : 1, "name" : "Vásárló István", "email" : "vasarlo@istvan.com", "username" : "pistike", "password" : "pistike", "rank" : "customer" }
+{ "_id" : {"$oid":"5cda0da6ad3233e78b539454"}, "userID" : 2, "name" : "Vásárló János", "email" : "vasarlo@janos.com", "username" : "janoka", "password" : "janoka", "rank" : "customer" }
+{ "_id" : {"$oid":"5cda0da6ad3233e78b539455"}, "userID" : 3, "name" : "Vásárló Géza", "email" : "vasarlo@geza.com", "username" : "gezuka", "password" : "gezuka", "rank" : "customer" }
+{ "_id" : {"$oid":"5cda0da6ad3233e78b539456"}, "userID" : 4, "name" : "Munkás Ferenc", "email" : "munkas@ferenc.com", "username" : "ferike", "password" : "ferike", "rank" : "worker" }
+{ "_id" : {"$oid":"5cda0da6ad3233e78b539457"}, "userID" : 5, "name" : "Menedzser Mihály", "email" : "menedzser@mihaly.com", "username" : "misike", "password" : "misike", "rank" : "manager" }
+

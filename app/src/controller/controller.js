@@ -2,16 +2,16 @@ var express = require('express');
 var router = express.Router();
 const appRoot = require('app-root-path');
 
-var UserService = require(`${appRoot}/app/service/userService`);
+var UserService = require(`${appRoot}/app/src/service/userService`);
 const userService = new UserService();
 
-var OrderService = require(`${appRoot}/app/service/orderService`);
+var OrderService = require(`${appRoot}/app/src/service/orderService`);
 const orderService = new OrderService();
 
-var ShutterService = require(`${appRoot}/app/service/shutterService`);
+var ShutterService = require(`${appRoot}/app/src/service/shutterService`);
 const shutterService = new ShutterService();
 
-var ElementService = require(`${appRoot}/app/service/elementService`);
+var ElementService = require(`${appRoot}/app/src/service/elementService`);
 const elementService = new ElementService();
 
 var userName = null;

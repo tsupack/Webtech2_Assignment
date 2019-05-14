@@ -1,12 +1,12 @@
 const appRoot = require('app-root-path');
-const logger = require(`${appRoot}/app/config/logger`);
+const logger = require(`${appRoot}/app/src/config/logger`);
 
 function ShutterService(shutterDao){
     if(shutterDao != undefined || shutterDao != null){
         this.shutterDao = shutterDao;
     }
     else {
-        this.shutterDao = require(`${appRoot}/app/dao/shutterDao`);
+        this.shutterDao = require(`${appRoot}/app/src/dao/shutterDao`);
     }
 }
 

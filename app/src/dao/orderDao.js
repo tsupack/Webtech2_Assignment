@@ -1,11 +1,11 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const appRoot = require('app-root-path');
-const logger = require(`${appRoot}/app/config/logger`);
-const mongoConfig = require(`${appRoot}/app/config/mongo`);
+const logger = require(`${appRoot}/app/src/config/logger`);
+const mongoConfig = require(`${appRoot}/app/src/config/mongo`);
 
-const shutterDao = require(`${appRoot}/app/dao/shutterDao`);
-const elementDao = require(`${appRoot}/app/dao/elementDao`);
+const shutterDao = require(`${appRoot}/app/src/dao/shutterDao`);
+const elementDao = require(`${appRoot}/app/src/dao/elementDao`);
 
 /*
 Collection structure:

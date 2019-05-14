@@ -1,12 +1,12 @@
 const appRoot = require('app-root-path');
-const logger = require(`${appRoot}/app/config/logger`);
+const logger = require(`${appRoot}/app/src/config/logger`);
 
 function UserService(userDao){
     if(userDao != undefined || userDao != null){
         this.userDao = userDao;
     }
     else {
-        this.userDao = require(`${appRoot}/app/dao/userDao`);
+        this.userDao = require(`${appRoot}/app/src/dao/userDao`);
     }
 }
 
