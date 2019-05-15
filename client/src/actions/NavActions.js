@@ -3,6 +3,13 @@ import NavigationConstants from '../constants/navigationConstants.js';
 
 
 class NavActions {
+    showStartPage() {
+        ShutterDispatcher.handleViewAction({
+            actionType: NavigationConstants.SHOW_START_PAGE,
+            payload: null
+        });
+    }
+    
     showLoginFunction() {
         ShutterDispatcher.handleViewAction({
             actionType: NavigationConstants.LOAD_LOGIN_CONTENT,

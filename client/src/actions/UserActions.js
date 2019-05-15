@@ -2,7 +2,6 @@ import ShutterDispatcher from '../dispatcher/ShutterDispatcher';
 import UserConstants from '../constants/userConstants';
 
 class UserActions {
-
     loginUser(username, password) {
         ShutterDispatcher.handleViewAction({
             actionType: UserConstants.LOGIN,
@@ -16,7 +15,14 @@ class UserActions {
     logoutUser(){
         ShutterDispatcher.handleViewAction({
             actionType: UserConstants.LOGOUT,
-            payload: {}
+            payload: null
+        });
+    }
+
+    resetUserValues() {
+        ShutterDispatcher.handleViewAction({
+            actionType: UserConstants.RESET_USER_VALUES,
+            payload: null
         });
     }
     

@@ -2,10 +2,16 @@ import ShutterDispatcher from '../dispatcher/ShutterDispatcher.js';
 import WorkerConstants from '../constants/workerConstants.js';
 
 class WorkerActions {
-
     listNotAssembledOrders() {
         ShutterDispatcher.handleViewAction({
             actionType: WorkerConstants.LIST_NOT_ASSEMBLED_ORDERS,
+            payload: null
+        });
+    }
+
+    listAssembledOrders() {
+        ShutterDispatcher.handleViewAction({
+            actionType: WorkerConstants.LIST_ASSEMBLED_ORDERS,
             payload: null
         });
     }

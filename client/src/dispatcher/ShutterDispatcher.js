@@ -2,22 +2,24 @@ import {Dispatcher} from 'flux'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import MainStore from "../stores/MainStore";
+
 import UserConstants from '../constants/userConstants'
 import NavigationConstants from '../constants/navigationConstants';
 import CustomerConstants from '../constants/customerConstants';
 import WorkerConstants from '../constants/workerConstants';
 import ManagerConstants from '../constants/managerConstants';
+
+import ManagerActions from "../actions/ManagerActions";
+import CustomerActions from "../actions/CustomerActions";
+
 import CustomerContent from '../components/CustomerContent.js';
 import WorkerContent from '../components/WorkerContent.js';
 import ManagerContent from '../components/ManagerContent.js';
 import LoginContent from '../components/LoginContent.js';
 import RegisterContent from '../components/RegisterContent.js';
-import MainStore from "../stores/MainStore";
-import ManagerActions from "../actions/ManagerActions";
-import CustomerActions from "../actions/CustomerActions";
 
 class shutterDispatcher extends Dispatcher {
-
     handleViewAction(action) {
         this.dispatch({
             source: 'VIEW_ACTION',
@@ -32,7 +34,6 @@ dispatcher.register((data) => {
     if (data.payload.actionType !== UserConstants.LOGIN) {
         return;
     }
-
     fetch('/login', {
         method: 'POST',
         headers: {
@@ -41,11 +42,20 @@ dispatcher.register((data) => {
         body: JSON.stringify(data.payload.payload)
     })
         .then((response) => {
-            return response.json()
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Can'log in! wrong login information, or unregistered user.");
         })
-        .then((userData) => {
+        .then( (userData) => {
+            MainStore._loggedIn = true;
             MainStore._loggedInUser = userData;
             MainStore.emitChange();
+        })
+        .catch((error) => {
+            MainStore._loggedIn = false;
+            MainStore._loggedInUser = null;
+            console.log(error)
         });
 });
 
@@ -305,7 +315,7 @@ dispatcher.register((data) => {
             return response.json()
         })
         .then((invoiceData) => {
-            MainStore._queriedInvoceData = invoiceData;
+            MainStore._queriedInvoiceData = invoiceData;
             MainStore.emitChange();
         });
 });
@@ -364,15 +374,22 @@ dispatcher.register((data) => {
     if (data.payload.actionType !== NavigationConstants.RESET_STORE_VALUES) {
         return;
     }
-
     MainStore._nameToReloadCustomerOrdersWith = '';
     MainStore._queriedOrders = null;
     MainStore._queriedOrderElements = null;
     MainStore._queriedShutterModels = null;
-    MainStore._queriedInvoceData = null;
+    MainStore._queriedInvoiceData = null;
     MainStore._queriedInvoiceElements = null;
     MainStore._statistics = null;
 
+});
+
+dispatcher.register((data) => {
+    if (data.payload.actionType !== UserConstants.RESET_USER_VALUES) {
+        return;
+    }
+    MainStore._loggedIn = false;
+    MainStore._loggedInUser = null;
 });
 
 //for searching the actual order

@@ -6,10 +6,11 @@ class MainStore extends EventEmitter {
     _queriedOrders = null;
     _queriedOrderElements = null;
     _queriedShutterModels = null;
-    _queriedInvoceData = null;
+    _queriedInvoiceData = null;
     _queriedInvoiceElements = null;
     _statistics = null;
     _loggedInUser = null;
+    _loggedIn = false;
 
     emitChange() {
         this.emit('change')

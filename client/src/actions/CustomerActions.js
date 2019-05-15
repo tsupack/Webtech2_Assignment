@@ -2,7 +2,6 @@ import ShutterDispatcher from '../dispatcher/ShutterDispatcher';
 import CustomerConstants from '../constants/customerConstants';
 
 class CustomerActions {
-
     createOrder(order) {
         ShutterDispatcher.handleViewAction({
             actionType: CustomerConstants.CREATE_ORDER,
@@ -31,10 +30,10 @@ class CustomerActions {
         })
     }
 
-    listShutterModels(shutters) {
+    listShutterModels() {
         ShutterDispatcher.handleViewAction({
             actionType: CustomerConstants.LIST_SHUTTER_MODELS,
-            payload: shutters
+            payload: null
         })
     }
 
